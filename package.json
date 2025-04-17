@@ -1,0 +1,22 @@
+{
+  "name": "attendance-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "server": "node index.js"
+  },
+  "author": "Ramya Devi M",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2",
+    "nodemailer": "^6.10.0",
+    "nodemon": "^3.1.9",
+    "react-router-dom": "^7.5.0"
+  }
+}
