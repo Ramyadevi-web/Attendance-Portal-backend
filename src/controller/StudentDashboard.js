@@ -10,7 +10,7 @@ const getAttendanceByStudentId= async(req,res)=>{
       res.status(200).send({
         success: true,
         message: "Attendance fetched by studentId successfully",
-        response,
+        response
       });
     } catch (error) {
       console.error(error);
