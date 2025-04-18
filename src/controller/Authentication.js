@@ -89,49 +89,45 @@ const SignUpUser = (req,res)=>{
      .then((response)=>{
       if(response && response._id){
 
-         // Generate SMTP service account from ethereal.email
-            nodemailer.createTestAccount((err, account) => {
-               if (err) {
-                  console.error('Failed to create a testing account. ' + err.message);
-                  return process.exit(1);
-               }
+         const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: 'ramyadevim06@gmail.com',        
+              pass: 'ltbf bqfc yafi fanm'             
+            }
+          });
+          const resetToken = jwt.sign({ id: response._id }, "ATTENDANCE2305", { expiresIn: "15m" });
 
-               console.log('Credentials obtained, sending message...');
+         const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
 
-               // Create a SMTP transporter object
-               let transporter = nodemailer.createTransport({
-                  host: account.smtp.host,
-                  port: account.smtp.port,
-                  secure: account.smtp.secure,
-                  auth: {
-                     user: account.user,
-                     pass: account.pass
-                  }
-               });
+          const message = {
+            from: 'ramyadevim06@gmail.com',
+            to: response.email, 
+            subject: 'Password Reset Link',
+            html: `<p>Click <a href="${resetUrl}">Reset Password </a> to reset password.</p>`
+          };
 
-               // Message object
-               let message = {
-                  from: 'Sender Name <ramyadevim7@ethereal.com>',
-                  to: 'Recipient <receiver@ethereal.com>',
-                  subject: 'Nodemailer is unicode friendly ✔',
-                  text: 'Hello to myself!',
-                  html: '<p><b>Hello</b> to myself!</p>'
-               };
-
-               transporter.sendMail(message, (err, info) => {
-                  if (err) {
-                     console.log('Error occurred. ' + err.message);
-                     return process.exit(1);
-                  }
-
-                  console.log('Message sent: %s', info.messageId);
-                  // Preview only available when sending through an Ethereal account
-                  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-               });
+          transporter.sendMail(message, (err, info) => {
+            if (err) {
+              console.error('Error while sending email:', err);
+              return res.status(500).send({
+                success: false,
+                message: "Failed to send email",
+                error: err.message
+              });
+            }
+  
+            console.log('Email sent:', info.response);
+            return res.status(200).send({
+              success: true,
+              message: "Password reset link sent to your email address"
             });
+          });
+
         return res.status(200).send({
             success:true,
-            message:"Password reset link sent to your mail id"
+            message:"Password reset link sent to your mail id",
+            email:response.email 
          })
       }else{
          return res.status(400).send({
@@ -149,8 +145,50 @@ const SignUpUser = (req,res)=>{
    
  }
 
+ 
+ const ResetPassword = (req,res)=>{
+       
+   const {password,token} = req.body
+
+   if(!password || !token){
+      return res.status(400).send({
+         success:false,
+         message:"Invalid password or token"
+      })
+      }
+    
+
+      try {
+         const decoded = jwt.verify(token,'ATTENDANCE2305')
+         const userId = decoded.id;
+
+         AuthModel.findByIdAndUpdate(userId, { password }, { new: true })
+         .then((user) => {
+           if (!user) {
+             return res.status(400).send({
+               success: false,
+               message: "Invalid token or user not found",
+             });
+           }
+   
+           return res.status(200).send({
+             success: true,
+             message: "Password updated successfully",
+           });
+      } ).catch ((error)=> {
+         
+      })
+   }catch (err) {
+         return res.status(400).send({
+           success: false,
+           message: "Invalid or expired token",
+         });
+       }
+   }
+ 
  export default {
     SignInUser,
     SignUpUser,
-    ForgotPassword
+    ForgotPassword,
+    ResetPassword
  }
