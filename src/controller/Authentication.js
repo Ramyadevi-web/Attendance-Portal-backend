@@ -1,6 +1,8 @@
 import AuthModel from '../models/AuthenticationModel.js'
 import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const SignUpUser = (req,res)=>{
 
@@ -45,7 +47,7 @@ const SignUpUser = (req,res)=>{
                const token = jwt.sign({
                                         roles:[response.role],
                                         uid:response._id
-                                       },"SECRET_KEY",{ expiresIn:"5m"})
+                                       },process.env.RESET_SECRET_KEY,{ expiresIn:"5m"})
                res.status(200).send({
                   success:true,
                   message:"User Signed In Successfully",
@@ -92,13 +94,13 @@ const SignUpUser = (req,res)=>{
          const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-              user: 'ramyadevim06@gmail.com',        
-              pass: 'ltbf bqfc yafi fanm'             
+              user: process.env.EMAIL_USER,        
+              pass: process.env.EMAIL_PASS           
             }
           });
-          const resetToken = jwt.sign({ id: response._id }, "ATTENDANCE2305", { expiresIn: "15m" });
+          const resetToken = jwt.sign({ id: response._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
-         const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+         const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
           const message = {
             from: 'ramyadevim06@gmail.com',
