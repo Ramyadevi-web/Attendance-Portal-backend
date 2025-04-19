@@ -111,10 +111,17 @@ const attendanceReport = async (req, res) => {
 };
 
 const getAttendanceByStudentId= async(req,res)=>{
-    
-  const {id} = req.params;
   
   try {
+
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid student ID format",
+      });
+    }
     const response = await AuthModel.findById(id);
     console.log("res",response)
 
