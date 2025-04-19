@@ -2,11 +2,21 @@ import AuthModel from '../models/AuthenticationModel.js'
 import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import { response } from 'express'
 dotenv.config()
 
-const SignUpUser = (req,res)=>{
+const SignUpUser = async (req,res)=>{
 
-    const student = new AuthModel(req.body);
+    const email = await AuthModel.findOne({email:req.body.email})
+  
+    if(email){ //to restrict duplicate mail id.
+      return res.status(400).send({
+         success: false,
+        message:`User with this email ${req.body.email} already exist`
+       })
+    }
+    
+    const student = new AuthModel(req.body); //create authModel instance
 
     student.save().then((response)=>{
       if(response._id){
@@ -33,7 +43,7 @@ const SignUpUser = (req,res)=>{
 
    const { email,password } = req.body
 
-   if(!email || !password){
+   if(!email || !password){ //To handle empty field
       res.status(400).send({
          success:false,
          message:"Invalid Email Id or Password"
@@ -47,7 +57,7 @@ const SignUpUser = (req,res)=>{
                const token = jwt.sign({
                                         roles:[response.role],
                                         uid:response._id
-                                       },process.env.RESET_SECRET_KEY,{ expiresIn:"5m"})
+                                       },process.env.RESET_SECRET_KEY,{ expiresIn:"5m"}) //token created
                res.status(200).send({
                   success:true,
                   message:"User Signed In Successfully",
@@ -79,7 +89,7 @@ const SignUpUser = (req,res)=>{
  const ForgotPassword = (req,res)=>{
 
    const {email} = req.body;
-   if (!email) {
+   if (!email) { //to handle empty field
       return res.status(400).send({
         success: false,
         message: "Invalid email id",
