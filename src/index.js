@@ -22,7 +22,8 @@ app.use('/',AppRoutes)
 
 app.listen(PORT,HOST_NAME,()=>console.log(`App listening ${PORT}`))
 app.use((req, res, next) => {
-    next();
+  console.log(`${req.method} ${req.url}`);
+  next();
   });
 
 DBConnection()

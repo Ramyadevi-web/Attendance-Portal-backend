@@ -17,6 +17,25 @@ const AdminDashboard = (req,res)=>{
     })
   }
 
+  const GetStudentById = (req,res)=>{
+
+    let {id} = req.params;
+
+    AuthModel.findById(id)
+    .then((response)=>{
+        res.status(200).send({
+          success:true,
+          msessage:"User data fetched by id successfully",
+          users:response
+        })
+      }).catch((error)=> {
+        res.status(500).send({
+          success:false,
+          message:error.message
+        })
+      })
+    }
+  
 
 const AddUser = (req,res)=>{
   const user = new AuthModel(req.body);
@@ -47,9 +66,9 @@ const AddUser = (req,res)=>{
 const DeleteUser =async (req,res)=>{
 
   try{
-  const ParamId = req.params.id;
+  const userId = req.params.id;
 
-  const deletedUser = await AuthModel.deleteOne({_id:ParamId});
+  const deletedUser = await AuthModel.deleteOne({_id:userId});
 
    if(!deletedUser){
     return res.status(404).send({
@@ -71,8 +90,39 @@ const DeleteUser =async (req,res)=>{
   }
 }
 
+const EditUser =async (req,res)=>{
+
+  try{
+  const userId = req.params.id;
+
+   await AuthModel.findByIdAndUpdate(userId,req.body, { new: true });
+
+   if(!userId){
+    return res.status(404).send({
+      success:false,
+      message:"User not found"
+    })
+   }
+ 
+       res.status(200).send({
+         success: true,
+         message:"User updated succesfully"
+        })
+
+  }catch(error){
+    res.status(500).send({
+       success:false,
+       error:error.message
+    })
+  }
+}
+
+
+
 export default {
     AdminDashboard,
     AddUser,
-    DeleteUser
+    DeleteUser,
+    EditUser,
+    GetStudentById
 }
