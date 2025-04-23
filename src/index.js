@@ -10,7 +10,7 @@ const app = express()
 const PORT = process.env.PORT || 8000;
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin:"https://attendanceportalui.netlify.app",
   credentials: true
 };
 
